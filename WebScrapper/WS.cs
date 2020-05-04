@@ -1,70 +1,72 @@
-﻿using HtmlAgilityPack;
+using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace WebScrapper
 {
     public sealed class WS
     {
-        private static volatile WS instance;
-        private static readonly object locker = new object();
+        private static volatile WS sb;
+        private static readonly object go = new object();
 
-        private WS()
-        {
 
-        }
 
-        public static WS Instance
+        public static WS SB
         {
             get
             {
-                if (instance != null)
-                    return instance;
+                if (sb != null)
+                    return sb;
 
-                lock (locker)
+                lock (go)
                 {
-                    if (instance == null)
+                    if (sb == null)
                     {
-                        instance = new WS();
+                        sb = new WS();
                     }
                 }
 
-                return instance;
+                return sb;
             }
         }
 
-        public void RunWebScrapper(int  numberOfImages)
+
+        public void ProblemSolution()
+
         {
+            Console.WriteLine("Provide the number of images you want to download: ");
+            int givennumber = Int32.Parse(Console.ReadLine());
+
             Console.WriteLine("Provide the term you want to search on Google Images: ");
-            string keyword = Console.ReadLine();
-            var htmlImages = @"https://www.google.com/search?q=" + keyword + "&tbm=isch";
+            string term = Console.ReadLine();
+            var img = @"https://www.google.com/search?q=" + term + "&tbm=isch";
             HtmlWeb googleImages = new HtmlWeb();
-            var htmlDoc = googleImages.Load(htmlImages);
+            var ff = googleImages.Load(img);
             int i = 0;
 
 
             try
             {
-                foreach (var link in htmlDoc.DocumentNode.Descendants("a"))
+                foreach (var link in ff.DocumentNode.Descendants("a"))
                 {
                     var srcValue = link.GetAttributeValue("href", string.Empty);
                     if (srcValue.Contains("imgres?imgurl="))
                     {
-                        using (var client = new WebClient())
+                        using (var buy = new WebClient())
                         {
                             string srcToDownload = srcValue.Replace(@"/imgres?imgurl=", "");
                             srcToDownload = srcToDownload.Substring(0, srcToDownload.IndexOf('&'));
 
-                            client.DownloadFile(srcToDownload, @"C:\Users\seash\Desktop\downloaded\" + keyword + "_" + i.ToString() + ".jpg");
+                            buy.DownloadFile(srcToDownload, @"C:\Users\seash\Desktop\downloaded\" + term + "_" + i.ToString() + ".jpg");
                             i++;
                         }
                     }
 
-                    if (i > numberOfImages)
+                    if (i > givennumber)
                     {
                         break;
                     }
@@ -74,11 +76,7 @@ namespace WebScrapper
             {
                 Console.WriteLine(e);
             }
-
         }
-
-        
-
 
     }
 }
